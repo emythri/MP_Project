@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graphical Method Solver</title>
+</head>
+<body>
+    <h1>Linear Programming Solver</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <h2>Constraints</h2>
+        <div id="constraints">
+            {% for i in num_constraints_range %}
+                <div>
+                    <label for="constraint_{{ i }}_c1">Coefficient for x1:</label>
+                    <input type="number" step="any" name="constraint_{{ i }}_c1" required>
+                    <label for="constraint_{{ i }}_c2">Coefficient for x2:</label>
+                    <input type="number" step="any" name="constraint_{{ i }}_c2" required>
+                    <label for="constraint_{{ i }}_rhs">Right-hand side:</label>
+                    <input type="number" step="any" name="constraint_{{ i }}_rhs" required>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="submit">Solve</button>
+    </form>
+
+    {% if A and b and c %}
+    <h2>Parsed Input:</h2>
+    <p><strong>Objective Function Coefficients (c):</strong> {{ c }}</p>
+    <p><strong>Constraint Matrix (A):</strong> {{ A }}</p>
+    <p><strong>RHS Vector (b):</strong> {{ b }}</p>
+    {% endif %}
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% elif image %}
+        <h2>Results</h2>
+        <p>Optimal Vertex: {{ optimal_vertex }}</p>
+        <p>Optimal Value: {{ optimal_value }}</p>
+        <img src="data:image/png;base64,{{ image }}" alt="Solution Graph">
+    {% endif %}
+    <h3><a href="/">Back</a></h3>
+</body>
+</html>
