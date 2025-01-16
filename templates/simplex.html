@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simplex Method Solver</title>
+</head>
+<body>
+    <h1>Simplex Method Solver</h1>
+
+    <!-- Form to specify the number of variables and constraints -->
+    <form method="POST">
+        {% csrf_token %}
+        <label for="num_vars">Number of Variables:</label>
+        <input type="number" id="num_vars" name="num_vars" min="1" value="{{ num_vars|default:1 }}" required><br>
+
+        <label for="num_constraints">Number of Constraints:</label>
+        <input type="number" id="num_constraints" name="num_constraints" min="1" value="{{ num_constraints|default:1 }}" required><br>
+
+        <button type="submit" name="generate">Generate</button>
+    </form>
+
+    {% if num_vars and num_constraints %}
+    <hr>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="num_vars" value="{{ num_vars }}">
+        <input type="hidden" name="num_constraints" value="{{ num_constraints }}">
+
+        <!-- Objective Function -->
+        <h3>Objective Function</h3>
+        Z =
+        {% for i in var_range %}
+            <input type="number" name="c_{{ i }}" step="any" required> x{{ i }}
+            {% if not forloop.last %}+{% endif %}
+        {% endfor %}
+        <br><br>
+
+        <!-- Constraints -->
+        <h3>Constraints</h3>
+        {% for i in constraint_range %}
+            <label>Constraint {{ i }}:</label><br>
+            {% for j in var_range %}
+                <input type="number" name="a_{{ i }}_{{ j }}" step="any" required> x{{ j }}
+                {% if not forloop.last %}+{% endif %}
+            {% endfor %}
+            <select name="op_{{ i }}" required>
+                <option value="<=">&le;</option>
+                <option value=">=">&ge;</option>
+                <option value="=">=</option>
+            </select>
+            <input type="number" name="b_{{ i }}" step="any" required><br>
+        {% endfor %}
+        <br>
+
+        <button type="submit" name="solve">Solve</button>
+    </form>
+    {% endif %}
+
+    <!--chacking............-->
+    {% if A and b and c %}
+    <h2>Parsed Input:</h2>
+    <h3>
+    <p><strong>Objective Function Coefficients (c):</strong> {{ c }}</p>
+    <p><strong>Constraint Matrix (A):</strong> {{ A }}</p>
+    <p><strong>RHS Vector (b):</strong> {{ b }}</p>
+    </h3>
+    {% endif %}
+
+
+    <!-- Display Results -->
+    {% if solution %}
+        <h1>Solution:</h1> 
+        <h2>
+        <p>Optimal Solution: {{ solution }}</p>
+        <p>Optimal Value: {{ optimal_value }}</p> 
+        </h2>
+    {% endif %}
+
+    {% if final_tableau %}
+    <h1>Final Tableau:</h1>
+    <h2>
+    <table border="1">
+        {% for row in final_tableau %}
+            <tr>
+                {% for value in row %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    </h2>
+    {% endif %}
+
+
+    {% if error %}
+        <h3>Error:</h3>
+        <p>{{ error }}</p>
+    {% endif %}
+    <h3><a href="/">Back</a></h3>
+</body>
+</html>
